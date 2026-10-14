@@ -1,6 +1,12 @@
 let canvaEl = document.querySelector("canvas");
 let context = canvaEl.getContext("2d");
 
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+canvaEl.width = width;
+canvaEl.height = height;
+
 class Spritesheet{
     constructor(img, frameWidth, frameHeight, framesX, framesY){
         //caracteristicas da imagem
@@ -18,14 +24,16 @@ class Spritesheet{
         //posicao do personagem
         this.posX = 0;
         this.posY = 0;
-        this.vBase = 1;
+
+        //velocidade do personagem
+        this.vBase = 10;
         this.vX = 0;
         this.vY = 0;
     }
     desenhar(){
-        context.drawImage(this.img.src,
-            this.linhaAtual * this.frameWidth,
-            this.colunaAtual * this.frameHeight,
+        context.drawImage(this.img,
+            this.colunaAtual * this.frameWidth,
+            this.linhaAtual * this.frameHeight,
             this.frameWidth, this.frameHeight,
             this.posX, this.posY,
             this.frameWidth, this.frameHeight
@@ -38,19 +46,83 @@ class Spritesheet{
         if(direcao == "esquerda"){
             this.vX = -this.vBase;
         }
-        this.posX += this.vX; 
+        if(direcao == "cima") {
+            this.vY = -this.vBase;
+        }
+        if(direcao == "baixo") {
+            this.vY = this.vBase;
+        }
+        if(direcao == "paradoX")
+            this.vX = 0;
+        if(direcao == "paradoY")
+            this.vY = 0;
+    }
+    atualizarPosicao() {
+        this.posX += this.vX;
+        this.posY += this.vY;
     }
 }
 
 class Personagem extends Spritesheet{
-    constructor(){
+    constructor(img, frameWidth, frameHeight, framesX, framesY){
+        super(img, frameWidth, frameHeight, framesX, framesY);
         this.vida = 3;
         this.pontos = 0;
         this.danoBase = 10;
     }
     morrer(){
         if(this.vida <= 0){
-            window.alert(moreu);
+            while(1) {
+                window.alert("morreu");
+            }
         }
     }
 }
+
+const teclas = {
+    KeyA: false,
+    KeyD: false,
+    KeyW: false,
+    KeyS: false
+};
+
+// if(x in y) verifica se x faz parte de um objeto ou vetor y
+document.addEventListener('keydown', function(event) {
+    if (event.code in teclas) {
+        teclas[event.code] = true;
+    }
+});
+
+document.addEventListener('keyup', function(event) {
+    if (event.code in teclas) {
+        teclas[event.code] = false;
+    }
+});
+
+const jogador = new Personagem("sonic.jpg", 16, 16, 4, 4);
+
+function atualizarJogo() {
+    context.clearRect(0, 0, canvaEl.width, canvaEl.height);
+
+    if(teclas.KeyD)
+        jogador.mover("direita");
+    else if(teclas.KeyA)
+        jogador.mover("esquerda");
+    else
+        jogador.mover("paradoX");
+
+    if(teclas.KeyW)
+        jogador.mover("cima");
+    else if(teclas.KeyS)
+        jogador.mover("baixo");
+    else
+        jogador.mover("paradoY");
+
+    jogador.atualizarPosicao();
+
+    jogador.desenhar();
+
+    requestAnimationFrame(atualizarJogo);
+}
+
+atualizarJogo();
