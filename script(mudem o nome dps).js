@@ -7,6 +7,11 @@ let height = window.innerHeight;
 canvaEl.width = width;
 canvaEl.height = height;
 
+const teclasAndar = {
+    KeyA: false,
+    KeyD: false
+};
+
 class Spritesheet{
     constructor(img, frameWidth, frameHeight, framesX, framesY){
         //caracteristicas da imagem
@@ -22,18 +27,26 @@ class Spritesheet{
         this.framesY = framesY;
 
         //posicao do personagem
-        this.posX = 0;
+        this.posX = 100;
         this.posY = 0;
 
         //velocidade do personagem
         this.vBase = 10;
         this.vX = 0;
         this.vY = 0;
+
+        //caracteristicas do pulo
+        this.noChao = true;
+        this.gravidade = 0.6;
+        this.forcaPulo = -12;
+        this.alturaPulo = 50;
+        this.frameAtual = 0;
+
     }
     desenhar(){
         context.drawImage(this.img,
-            this.colunaAtual * this.frameWidth,
-            this.linhaAtual * this.frameHeight,
+            this.colunaAtual,
+            this.linhaAtual,
             this.frameWidth, this.frameHeight,
             this.posX, this.posY,
             this.frameWidth, this.frameHeight
@@ -42,24 +55,37 @@ class Spritesheet{
     mover(direcao){
         if(direcao == "direita"){
             this.vX = this.vBase;
+            this.colunaAtual = 2 * this.frameWidth;
         }
         if(direcao == "esquerda"){
             this.vX = -this.vBase;
+            this.colunaAtual = 2 * this.frameWidth;
         }
         if(direcao == "cima") {
-            this.vY = -this.vBase;
+            if(this.noChao) {
+                this.vY = this.forcaPulo;
+                this.linhaAtual = 3 * this.frameHeight;
+                this.noChao = false;
+            }
         }
-        if(direcao == "baixo") {
-            this.vY = this.vBase;
-        }
-        if(direcao == "paradoX")
+        if(direcao == "paradoX") {
             this.vX = 0;
-        if(direcao == "paradoY")
-            this.vY = 0;
+            this.colunaAtual = 1 * this.frameWidth;
+        }
     }
     atualizarPosicao() {
         this.posX += this.vX;
+
+        this.vY += this.gravidade;
         this.posY += this.vY;
+
+        let chao = 201;
+        if(this.posY >= chao) {
+            this.linhaAtual = 1 * this.frameHeight;
+            this.posY = (chao - 1);
+            this.vY = 0;
+            this.noChao = true;
+        }
     }
 }
 
@@ -79,44 +105,36 @@ class Personagem extends Spritesheet{
     }
 }
 
-const teclas = {
-    KeyA: false,
-    KeyD: false,
-    KeyW: false,
-    KeyS: false
-};
-
 // if(x in y) verifica se x faz parte de um objeto ou vetor y
 document.addEventListener('keydown', function(event) {
-    if (event.code in teclas) {
-        teclas[event.code] = true;
+    if (event.code in teclasAndar) {
+        teclasAndar[event.code] = true;
     }
 });
 
 document.addEventListener('keyup', function(event) {
-    if (event.code in teclas) {
-        teclas[event.code] = false;
+    if (event.code in teclasAndar) {
+        teclasAndar[event.code] = false;
     }
 });
 
-const jogador = new Personagem("sonic.jpg", 16, 16, 4, 4);
+document.addEventListener('keydown', function(event) {
+    if(event.code == "KeyW") {
+        jogador.mover("cima");
+    }
+})
+
+const jogador = new Personagem("sonic.jpg", 40, 40, 12, 10);
 
 function atualizarJogo() {
     context.clearRect(0, 0, canvaEl.width, canvaEl.height);
 
-    if(teclas.KeyD)
+    if(teclasAndar.KeyD)
         jogador.mover("direita");
-    else if(teclas.KeyA)
+    else if(teclasAndar.KeyA)
         jogador.mover("esquerda");
     else
         jogador.mover("paradoX");
-
-    if(teclas.KeyW)
-        jogador.mover("cima");
-    else if(teclas.KeyS)
-        jogador.mover("baixo");
-    else
-        jogador.mover("paradoY");
 
     jogador.atualizarPosicao();
 
