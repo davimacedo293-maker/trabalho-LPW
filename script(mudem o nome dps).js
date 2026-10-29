@@ -4,8 +4,34 @@ let context = canvaEl.getContext("2d");
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-canvaEl.width = width;
-canvaEl.height = height;
+const razaoDoCanva = 16/9;
+const widthPadrao = 960;
+const heightPadrao = 540;
+
+
+//ajuda o canva a manter a proporçao independente do tamanho da sua tela
+function ajustarCanvas(){
+    const porcentagemDaTela = 0.8;
+    let targetWidth = window.innerWidth * porcentagemDaTela;
+    let targetHeight = targetWidth / razaoDoCanva;
+
+    canvaEl.style.width = targetWidth + "px";
+    canvaEl.style.height = targetHeight + "px";
+
+    canvaEl.style.position = "absolute";
+    canvaEl.style.left = "50%";
+    canvaEl.style.top = "50%";
+    canvaEl.style.transform = "translate(-50%, -50%)";
+    context.imageSmoothingEnabled = false;
+    canvaEl.style.imageRendering = "pixelated";
+
+
+    canvaEl.width = widthPadrao;
+    canvaEl.height = heightPadrao;
+}
+ajustarCanvas();
+
+window.addEventListener("resize", ajustarCanvas);
 
 const teclasAndar = {
     KeyA: false,
@@ -124,7 +150,7 @@ document.addEventListener('keydown', function(event) {
     }
 })
 
-const jogador = new Personagem("sonic.jpg", 40, 40, 12, 10);
+const jogador = new Personagem("sprites/jogador/black-background.png", 40, 40, 12, 10);
 
 function atualizarJogo() {
     context.clearRect(0, 0, canvaEl.width, canvaEl.height);
