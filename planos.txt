@@ -1,0 +1,22 @@
+1: fazer o mapa com tilesets{
+    1: fazer a grid (tamanho dos blocos é 32x32px) -> feito
+    2: fazer a colisao dos blocos -> feito
+    3: colocar uma textura nos blocos
+    4: usar o sistema de campo minado para saber qual sprite deve usar,
+    exemplo1: se o bloco estiver sozinho, entao use o sprite do bloco sozinho,
+    exemplo2: se o bloco estiver com outros blocos em cima e embaixo usar a sprite de coluna
+
+    por enquanto o mapa ta usando uma cor de bloco cinza, temos que mudar isso mais tarde
+}
+
+2: fazer um inimigo{
+    0(opcional): criar uma classe para entidade e fazer o jogador ser uma classe derivada da classe entidade
+    1: fazer seguir o player (depende do inimigo)
+    2: fazer ele dar dano no player (com um ataque, com projetil ou só com o toque)
+    3: fazer ele morrer (se o player atacar ele)
+}
+
+3: fazer um ataque{
+    1: fazer o ataque aparecer na frente do personagem
+    2: colisao pro ataque
+}
