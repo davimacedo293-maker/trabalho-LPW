@@ -7,6 +7,14 @@
     exemplo2: se o bloco estiver com outros blocos em cima e embaixo usar a sprite de coluna
 
     por enquanto o mapa ta usando uma cor de bloco cinza, temos que mudar isso mais tarde
+
+    5: fazer uma camera para ter um mapa um pouco maior
+}
+
+mdisanoda: {
+    1: fazer a classe entidade que o jogador e o inimigo derivam dela
+    2: tirar as funcoes desnecesarioas da spritesheet e so colocar nas classes que precisam
+    3:
 }
 
 2: fazer um inimigo{

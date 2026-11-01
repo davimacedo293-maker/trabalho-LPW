@@ -75,7 +75,7 @@ const teclasAndar = {
 };
 
 class Spritesheet{
-    constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY){
         //caracteristicas da imagem
         this.img = new Image();
 
@@ -95,29 +95,9 @@ class Spritesheet{
         this.framesX = framesX;
         this.framesY = framesY;
 
-        //posicao do personagem
-        this.posX = 100;
-        this.posY = 100;
-
-        //velocidade do personagem
-        this.vBase = 5;
-        this.vX = 0;
-        this.vY = 0;
-
-        //caracteristicas do pulo
-        this.noChao = true;
-        this.gravidade = 0.6;
-        this.forcaPulo = -12;
-        this.alturaPulo = 50;
-        this.frameAtual = 0;
-
-        this.estaAtacando = false;
-        this.tempoAtaque = 0;
-        this.alcanceAtaque = 1;
-        this.direcaoOlhar = 1;
-
-        this.hitboxWidth = hitboxWidth;
-        this.hitboxHeight = hitboxHeight;
+        //posicao da coisa
+        this.posX = posX;
+        this.posY = posY;
     }
     desenhar(){
         if(this.carregada){
@@ -139,10 +119,34 @@ class Spritesheet{
             );
         }
     }
-    atualizarPosicao() {
-        this.posX += this.vX;
-        this.posY += this.vY;
+}
+
+class Entidade extends Spritesheet{
+    constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
+        super(img, frameWidth, frameHeight, framesX, framesY);
+
+
+        //velocidade do personagem
+        this.vBase = 5;
+        this.vX = 0;
+        this.vY = 0;
+
+        //caracteristicas do pulo
+        this.noChao = true;
+        this.gravidade = 0.6;
+        this.forcaPulo = -12;
+        this.alturaPulo = 50;
+        this.frameAtual = 0;
+
+        this.estaAtacando = false;
+        this.tempoAtaque = 0;
+        this.alcanceAtaque = 1;
+        this.direcaoOlhar = 1;
+
+        this.hitboxWidth = hitboxWidth;
+        this.hitboxHeight = hitboxHeight;
     }
+
     checarColisoes(futuroX, futuroY, eixo){
         //false significa que nn tem colisao, true é pq tem
 
@@ -173,9 +177,14 @@ class Spritesheet{
         }
         return false;
     }
+
+    atualizarPosicao() {
+        this.posX += this.vX;
+        this.posY += this.vY;
+    }
 }
 
-class Personagem extends Spritesheet{
+class Personagem extends Entidade{
     constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
         super(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight);
         this.vida = 3;
@@ -266,9 +275,7 @@ class Personagem extends Spritesheet{
     }
     morrer(){
         if(this.vida <= 0){
-            while(1) {
-                window.alert("morreu");
-            }
+            let fodase = "67_69_420";
         }
     }
     ativarAtaque() {
@@ -366,7 +373,7 @@ document.addEventListener('keyup', function(event) {
     }
 });
 
-class Inimigo extends Spritesheet {
+class Inimigo extends Entidade {
     constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
         super(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight);
         this.vida = 50;
