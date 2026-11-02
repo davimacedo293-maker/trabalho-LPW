@@ -1,12 +1,12 @@
 1: fazer o mapa com tilesets{
     1: fazer a grid (tamanho dos blocos é 32x32px) -> feito
     2: fazer a colisao dos blocos -> feito
-    3: colocar uma textura nos blocos
-    4: usar o sistema de campo minado para saber qual sprite deve usar,
+    3: colocar uma textura nos blocos -> feito
+    4: usar o sistema de campo minado para saber qual sprite deve usar, -> meio feito
     exemplo1: se o bloco estiver sozinho, entao use o sprite do bloco sozinho,
     exemplo2: se o bloco estiver com outros blocos em cima e embaixo usar a sprite de coluna
 
-    por enquanto o mapa ta usando uma cor de bloco cinza, temos que mudar isso mais tarde
+    tive um problema com o sistema de BITMASK e nn sei qual é a conversao certa pra cada possibilidade
 
     5: fazer uma camera para ter um mapa um pouco maior
 }
