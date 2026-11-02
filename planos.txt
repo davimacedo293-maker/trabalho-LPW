@@ -20,11 +20,11 @@ mdisanoda: {
 2: fazer um inimigo{
     0(opcional): criar uma classe para entidade e fazer o jogador ser uma classe derivada da classe entidade -> feito
     1: fazer seguir o player (depende do inimigo) -> feito
-    2: fazer ele dar dano no player (com um ataque, com projetil ou só com o toque) -> feito
+    2: fazer ele dar dano e causar knockback no player (com um ataque, com projetil ou só com o toque) -> feito
     3: fazer ele morrer (se o player atacar ele) -> feito
 } -> feito
 
 3: fazer um ataque{
     1: fazer o ataque aparecer na frente do personagem -> feito
     2: colisao pro ataque -> feito
-}
+} -> feito

@@ -1,7 +1,7 @@
 import { BITMASK_PARA_SPRITE, TileSize, context, mapaDoJogo } from './constantes.js';
 
 export class Spritesheet{
-    constructor(img, frameWidth, frameHeight, framesX, framesY){
+    constructor(img, frameWidth, frameHeight, framesX, framesY, offsetX, offsetY, spacing){
         //caracteristicas da imagem
         this.img = new Image();
 
@@ -20,32 +20,26 @@ export class Spritesheet{
         this.frameWidth = frameWidth;
         this.framesX = framesX;
         this.framesY = framesY;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.spacing = spacing;
     }
     desenhar(){
-        if(this.carregada){
-            context.drawImage(this.img,
-                this.colunaAtual * this.frameWidth,
-                this.linhaAtual * this.frameHeight,
-                this.frameWidth, this.frameHeight,
-                this.posX, this.posY,
-                this.frameWidth, this.frameHeight
-            );
-        } else {
-            // PROVISÓRIO: Desenha um quadrado vermelho enquanto a imagem carrega
-            context.fillStyle = "red";
-            context.fillRect(
-                this.posX, 
-                this.posY, 
-                this.frameWidth, 
-                this.frameHeight
-            );
-        }
+        let srcX = this.offsetX + (this.colunaAtual * (this.frameWidth + this.spacing));
+        let srcY = this.offsetY + (this.linhaAtual * (this.frameHeight + this.spacing));
+
+        context.drawImage(this.img,
+            srcX, srcY,
+            this.frameWidth, this.frameHeight,
+            this.posX, this.posY,
+            this.frameWidth, this.frameHeight
+        );
     }
 }
 
 export class Tileset extends Spritesheet{
     constructor(img, IdDoTile){
-        super(img, TileSize, TileSize, 8, 6);
+        super(img, TileSize, TileSize, 8, 6, 0, 0, 0);
         this.id = IdDoTile;
     }
 
@@ -104,8 +98,8 @@ export class Tileset extends Spritesheet{
 }
 
 export class Entidade extends Spritesheet{
-    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight){
-        super(img, frameWidth, frameHeight, framesX, framesY);
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight, offsetX = 16, offsetY = 16, spacing = 32){
+        super(img, frameWidth, frameHeight, framesX, framesY, offsetX, offsetY, spacing);
 
         //posiçao da entidade
         this.posX = posX;
@@ -130,6 +124,8 @@ export class Entidade extends Spritesheet{
 
         this.hitboxWidth = hitboxWidth;
         this.hitboxHeight = hitboxHeight;
+
+        this.estaMorto = false;
     }
 
     checarColisoes(futuroX, futuroY, eixo){
@@ -177,7 +173,26 @@ export class Personagem extends Entidade{
         this.danoBase = 10;
 
         this.tempoInvulneravel = 0;
+        this.knockback = false;
+
+        this.contadorFrames = 0;
+        this.velocidadeAnimacao = 6;
     }
+
+    atualizarAnimacao() {
+        this.contadorFrames++;
+        if (this.contadorFrames >= this.velocidadeAnimacao) {
+            this.contadorFrames = 0;
+            if (this.estaMorto) {
+                if (this.colunaAtual < this.framesX - 1)
+                    this.colunaAtual++;
+                else
+                    this.respawnar();
+            } else
+                this.colunaAtual = (this.colunaAtual + 1) % this.framesX;
+        }
+    }
+
     atualizarPosicao(){
 
         this.vY += this.gravidade;
@@ -238,39 +253,65 @@ export class Personagem extends Entidade{
     controlar(direcao){
         if(direcao == "direita"){
             this.vX = this.vBase;
-            this.colunaAtual = 2;
             this.direcaoOlhar = 1;
+            if(this.noChao) {
+                this.linhaAtual = 1;
+                this.framesX = 8;
+            }
         }
         if(direcao == "esquerda"){
             this.vX = -this.vBase;
-            this.colunaAtual = 2;
             this.direcaoOlhar = -1;
+            if(this.noChao) {
+                this.linhaAtual = 1;
+                this.framesX = 8;
+            }
         }
         if(direcao == "cima") {
             if(this.noChao) {
                 this.vY = this.forcaPulo;
-                this.linhaAtual = 3;
                 this.noChao = false;
+                this.linhaAtual = 4;
+                this.framesX = 4;
             }
         }
         if(direcao == "paradoX") {
             this.vX = 0;
-            this.colunaAtual = 1;
+            if(this.noChao && !this.estaAtacando && !this.estaMorto) {
+                this.linhaAtual = 0;
+                this.framesX = 8;
+            }
         }
     }
     morrer(){
         if(this.vida <= 0){
-            let fodase = "67_69_420";
+            this.estaMorto = true;
+
+            this.tempoInvulneravel = 600;
+            this.linhaAtual = 7;
+            this.framesX = 14;
         }
+    }
+    respawnar() {
+        this.posX = 100;
+        this.posY = 400;
+        this.vida = 3;
+        this.knockback = false;
+        this.pontos -= 100;
+        this.tempoInvulneravel = 0;
+        this.estaMorto = false;
     }
     ativarAtaque() {
         if (this.tempoAtaque <= 0) {
             this.estaAtacando = true;
             this.tempoAtaque = 12;
+            this.linhaAtual = 3;
+            this.framesX = 4;
+            this.colunaAtual = 0;
         }
-        this.direcaoOlhar = (this.vX < 0) ? -1 : 1; 
+        this.direcaoOlhar = (this.vX < 0) ? -1 : 1;
     }
-    atacar() {
+    atacar(listaInimigos) {
         const duracaoTotal = 12;
         let framesPassados = duracaoTotal - this.tempoAtaque;
         let progressoLinear = framesPassados / duracaoTotal;
@@ -298,29 +339,32 @@ export class Personagem extends Entidade{
         let alcanceMaximoPixels = limiteDeBlocos * TileSize;
         let larguraPixelAtual = progressoAnimacao * alcanceMaximoPixels;
 
+        let larguraDesenho = Math.abs(larguraPixelAtual);
+        let ataqueX;
+
         context.fillStyle = "blue";
         context.lineWidth = 1;
 
         if (dir === 1) {
-            let ataqueX = this.posX + this.frameWidth;
+            ataqueX = this.posX + this.frameWidth;
             context.fillRect(ataqueX, this.posY, larguraPixelAtual, this.frameHeight);
             context.strokeRect(ataqueX, this.posY, larguraPixelAtual, this.frameHeight);
         } else {
-            let ataqueX = this.posX;
+            ataqueX = this.posX -  larguraDesenho;
             context.fillRect(ataqueX, this.posY, -larguraPixelAtual, this.frameHeight);
             context.strokeRect(ataqueX, this.posY, -larguraPixelAtual, this.frameHeight);
         }
 
         let hitboxX = (dir === 1) ? (this.posX + this.frameWidth) : (this.posX - larguraPixelAtual);
         let ataqueHitbox = { 
-            x: hitboxX, 
+            x: ataqueX, 
             y: this.posY, 
-            width: larguraPixelAtual, 
+            width: larguraDesenho, 
             height: this.frameHeight 
         };
 
         // aplica o dano se encostar no inimigo
-        if (typeof listaInimigos !== 'undefined') {
+        if (listaInimigos) {
             listaInimigos.forEach(inimigo => {
                 if (ataqueHitbox.x < inimigo.posX + inimigo.frameWidth &&
                     ataqueHitbox.x + ataqueHitbox.width > inimigo.posX &&
@@ -329,20 +373,23 @@ export class Personagem extends Entidade{
                     if (inimigo.tempoInundado <= 0) {
                         inimigo.vida -= this.danoBase;
                         inimigo.tempoInundado = 20;
+                        inimigo.vX = dir * 2;
+                        inimigo.vY = -6;
+                        inimigo.noChao = false;
                     }
                 }
             });
         }
 
-        jogador.tempoAtaque--;
-        if(jogador.tempoAtaque <= 0)
-            jogador.estaAtacando = false;
+        this.tempoAtaque--;
+        if(this.tempoAtaque <= 0)
+            this.estaAtacando = false;
     }
 }
 
 export class Inimigo extends Entidade {
-    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight){
-        super(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight);
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight, offsetX = 0, offsetY = 0, spacing = 0){
+        super(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight, offsetX, offsetY, spacing);
         this.vida = 50;
         this.dano = 1;
 
@@ -350,26 +397,37 @@ export class Inimigo extends Entidade {
         this.tempoInundado = 0;
     }
     perseguir(alvo) {
-        if(this.posX < alvo.posX) {
-            this.vX = this.vBase;
-            this.colunaAtual = 2     //(muda a coluna da spritesheet p animação de andar)
+        if(this.noChao) {
+            if(this.posX < alvo.posX) {
+                this.vX = this.vBase;
+                this.colunaAtual = 2;
+            }
+            else if(this.posX > alvo.posX) {
+                this.vX = -this.vBase;
+                this.colunaAtual = 2;
+            }
+            else
+                this.vX = 0;
         }
-        else if(this.posX > alvo.posX) {
-            this.vX = -this.vBase;
-            this.colunaAtual = 2     //(muda a coluna da spritesheet p animação de andar)
-        }
-        else
-            this.vX = 0;
 
         this.vY += this.gravidade;
 
         this.posX += this.vX;
         if (this.checarColisoes(this.posX, this.posY, "x")) {
+            if(this.vX > 0) {
+                let direitaHitbox = this.posX + (this.frameWidth + this.hitboxWidth) / 2;
+                this.posX = Math.floor(direitaHitbox / TileSize) * TileSize - (this.frameWidth + this.hitboxWidth) / 2 - 1;
+            }
+            else if(this.vX < 0) {
+                let esquerda = (this.posX + (this.frameWidth - this.hitboxWidth) / 2);
+                this.posX = Math.floor(esquerda / TileSize) * TileSize + TileSize - (this.frameWidth - this.hitboxWidth) / 2;
+            }
             this.vX = 0;
         }
 
         this.posY += this.vY;
         if (this.checarColisoes(this.posX, this.posY, "y")) {
+            this.noChao = true;
             if (this.vY > 0) {
                 let baixo = (this.posY + this.frameHeight);
                 this.posY = Math.floor(baixo / TileSize) * TileSize - this.frameHeight;
@@ -382,10 +440,17 @@ export class Inimigo extends Entidade {
             this.posX + this.frameWidth > alvo.posX &&
             this.posY < alvo.posY + alvo.frameHeight &&
             this.posY + this.frameHeight > alvo.posY) {
-            console.log(alvo.tempoInvulneravel);
             if (alvo.tempoInvulneravel <= 0) {
                 alvo.vida -= this.dano;
                 alvo.tempoInvulneravel = 60; //1 segundo de invencibilidade (60 frames)
+
+                let direcaoEmpurrao = (alvo.posX < this.posX) ? -1 : 1;
+                
+                alvo.vX = direcaoEmpurrao * 6;
+                alvo.vY = -6;
+                alvo.noChao = false;
+                alvo.knockback = true;
+
                 alvo.morrer();
             }
         }

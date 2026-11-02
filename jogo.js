@@ -1,5 +1,5 @@
 import { Personagem, Inimigo, Tileset } from './classes.js';
-import { canvaEl, context, mapaDoJogo, TileSize } from './constantes.js';
+import { canvaEl, context, mapaDoJogo, pontosDeSpawnInimigos, TileSize } from './constantes.js';
 
 const razaoDoCanva = 16/9;
 const widthPadrao = 960;
@@ -56,15 +56,29 @@ document.addEventListener('keyup', function(event) {
     }
 });
 
-const jogador = new Personagem("sprites/jogador/black-background.png", 16, 16, 21, 33, 100, 100, 8, 14);
+const jogador = new Personagem("sprites/jogador/DarkSamurai.png", 32, 32, 14, 8, 80, 400, 32, 32, 1, 1);
 
 let listaInimigos = [];
 
-const primeiroInimigo = new Inimigo("sprites/jogador/black-background.png", 16, 16, 21, 33, 200, 200, 8, 14);
-primeiroInimigo.posX = 200;
-primeiroInimigo.posY = 100;
+function criarInimigo(posX, posY) {
+    let novoInimigo = new Inimigo("sprites/jogador/black-background.png", 16, 16, 21, 33, 200, 200, 8, 14, 1, 1);
+    novoInimigo.posX = posX;
+    novoInimigo.posY = posY;
 
-listaInimigos.push(primeiroInimigo);
+    listaInimigos.push(novoInimigo);
+}
+criarInimigo(300, 500);
+
+function verificaCriacaoInimigo() {
+    for(let i = pontosDeSpawnInimigos.length - 1; i >= 0; i--) {
+        if(jogador.posX >= pontosDeSpawnInimigos[i].x) {
+            if(!pontosDeSpawnInimigos[i].ativado) {
+                criarInimigo(300, pontosDeSpawnInimigos[i].y);
+                pontosDeSpawnInimigos[i].ativado = true;
+            }
+        }
+    }
+}
 
 function atualizarJogo() {
     context.clearRect(0, 0, canvaEl.width, canvaEl.height);
@@ -72,12 +86,16 @@ function atualizarJogo() {
     context.font = '24px "Comic Sans MS"';
     context.fillStyle = "black";
     context.fillText("Vidas: " + jogador.vida, 0, 30);
+    context.fillText("Pontos: " + jogador.pontos, 130, 30);
+
+    if(jogador.noChao && jogador.knockback)
+        jogador.knockback = false;
 
     if(teclasAndar.KeyD)
         jogador.controlar("direita");
     else if(teclasAndar.KeyA)
         jogador.controlar("esquerda");
-    else
+    else if(!jogador.knockback)
         jogador.controlar("paradoX");
 
     //desenha o mapa
@@ -86,16 +104,19 @@ function atualizarJogo() {
     }
 
     if(jogador.estaAtacando) {
-        jogador.atacar();
+        jogador.atacar(listaInimigos);
     }
 
     jogador.atualizarPosicao();
+
+    jogador.atualizarAnimacao();
 
     for(let i = listaInimigos.length - 1; i >= 0; i--) {
         let inimigo = listaInimigos[i];
 
         if(inimigo.vida <= 0) {
             listaInimigos.splice(i, 1);
+            jogador.pontos += 67;
             continue;
         }
 
@@ -109,6 +130,8 @@ function atualizarJogo() {
 
     if(jogador.tempoInvulneravel > 0)
         jogador.tempoInvulneravel--;
+
+    verificaCriacaoInimigo();
 
     jogador.desenhar();
 
