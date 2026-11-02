@@ -75,7 +75,7 @@ const teclasAndar = {
 };
 
 class Spritesheet{
-    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY){
+    constructor(img, frameWidth, frameHeight, framesX, framesY){
         //caracteristicas da imagem
         this.img = new Image();
 
@@ -94,10 +94,6 @@ class Spritesheet{
         this.frameWidth = frameWidth;
         this.framesX = framesX;
         this.framesY = framesY;
-
-        //posicao da coisa
-        this.posX = posX;
-        this.posY = posY;
     }
     desenhar(){
         if(this.carregada){
@@ -122,9 +118,12 @@ class Spritesheet{
 }
 
 class Entidade extends Spritesheet{
-    constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight){
         super(img, frameWidth, frameHeight, framesX, framesY);
 
+        //posiçao da entidade
+        this.posX = posX;
+        this.posY = posY;
 
         //velocidade do personagem
         this.vBase = 5;
@@ -185,8 +184,8 @@ class Entidade extends Spritesheet{
 }
 
 class Personagem extends Entidade{
-    constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
-        super(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight);
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight){
+        super(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight);
         this.vida = 3;
         this.pontos = 0;
         this.danoBase = 10;
@@ -374,8 +373,8 @@ document.addEventListener('keyup', function(event) {
 });
 
 class Inimigo extends Entidade {
-    constructor(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight){
-        super(img, frameWidth, frameHeight, framesX, framesY, hitboxWidth, hitboxHeight);
+    constructor(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight){
+        super(img, frameWidth, frameHeight, framesX, framesY, posX, posY, hitboxWidth, hitboxHeight);
         this.vida = 50;
         this.dano = 1;
 
@@ -425,11 +424,11 @@ class Inimigo extends Entidade {
     }
 }
 
-const jogador = new Personagem("sprites/jogador/black-background.png", 16, 16, 21, 33, 8, 14);
+const jogador = new Personagem("sprites/jogador/black-background.png", 16, 16, 21, 33, 100, 100, 8, 14);
 
 let listaInimigos = [];
 
-const primeiroInimigo = new Inimigo("sprites/jogador/black-background.png", 16, 16, 21, 33, 8, 14);
+const primeiroInimigo = new Inimigo("sprites/jogador/black-background.png", 16, 16, 21, 33, 200, 200, 8, 14);
 primeiroInimigo.posX = 200;
 primeiroInimigo.posY = 100;
 
