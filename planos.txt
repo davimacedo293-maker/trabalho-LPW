@@ -11,12 +11,6 @@
     5: fazer uma camera para ter um mapa um pouco maior
 }
 
-mdisanoda: {
-    1: fazer a classe entidade que o jogador e o inimigo derivam dela
-    2: tirar as funcoes desnecesarioas da spritesheet e so colocar nas classes que precisam
-    3:
-}
-
 2: fazer um inimigo{
     0(opcional): criar uma classe para entidade e fazer o jogador ser uma classe derivada da classe entidade -> feito
     1: fazer seguir o player (depende do inimigo) -> feito

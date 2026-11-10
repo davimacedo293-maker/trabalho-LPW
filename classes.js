@@ -1,5 +1,5 @@
 import { camera } from './camera.js';
-import { BITMASK_PARA_SPRITE, TileSize, context, mapaDoJogo } from './constantes.js';
+import { BITMASK_PARA_SPRITE, TileSize, context, mapaDoJogo, canvaEl, razaoDoCanva, widthPadrao, heightPadrao } from './constantes.js';
 
 export class Spritesheet{
     constructor(img, frameWidth, frameHeight, framesX, framesY, offsetX, offsetY, spacing){
@@ -51,6 +51,21 @@ export class Spritesheet{
         }
 
         context.restore();
+    }
+}
+
+export class BG extends Spritesheet{
+    constructor(img, width, height){
+        super(img, width, height, 1, 1, 0, 0, 0);
+    }
+
+    desenhar(){
+        context.drawImage(this.img,
+            0, 0,
+            this.frameWidth, this.frameHeight,
+            0, 0,
+            canvaEl.width, canvaEl.height
+        );
     }
 }
 

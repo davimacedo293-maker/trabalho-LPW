@@ -1,14 +1,12 @@
-import { Personagem, Inimigo, Tileset } from './classes.js';
-import { canvaEl, context, mapaDoJogo, pontosDeSpawnInimigos, TileSize } from './constantes.js';
+import { Personagem, Inimigo, Tileset, BG } from './classes.js';
+import { canvaEl, context, mapaDoJogo, pontosDeSpawnInimigos, razaoDoCanva, widthPadrao, heightPadrao } from './constantes.js';
 import { camera, moverCamera } from './camera.js';
-
-const razaoDoCanva = 16/9;
-const widthPadrao = 960;
-const heightPadrao = 540;
 
 const TodosOsTilesets = {
     1: new Tileset('./sprites/plataformas/sprite_terra_grama.png', 1)
 }
+
+const fundo = new BG('./sprites/backgrounds/4.png', 320, 180);
 
 //ajuda o canva a manter a proporçao independente do tamanho da sua tela
 function ajustarCanvas(){
@@ -74,7 +72,7 @@ function verificaCriacaoInimigo() {
     for(let i = pontosDeSpawnInimigos.length - 1; i >= 0; i--) {
         if(jogador.posX >= pontosDeSpawnInimigos[i].x) {
             if(!pontosDeSpawnInimigos[i].ativado) {
-                criarInimigo(300, pontosDeSpawnInimigos[i].y);
+                criarInimigo(pontosDeSpawnInimigos[i].spawnX, pontosDeSpawnInimigos[i].spawnY);
                 pontosDeSpawnInimigos[i].ativado = true;
             }
         }
@@ -83,6 +81,8 @@ function verificaCriacaoInimigo() {
 
 function atualizarJogo() {
     context.clearRect(0, 0, canvaEl.width, canvaEl.height);
+
+    fundo.desenhar();
 
     moverCamera(jogador, canvaEl);
 

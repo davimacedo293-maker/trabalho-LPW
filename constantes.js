@@ -32,10 +32,14 @@ export const mapaDoJogo = [
 export const TileSize = 32;
 
 export const pontosDeSpawnInimigos = [
-    {x: 400, y: 500, ativado: false},
-    {x: 500, y: 500, ativado: false},
-    {x:600, y: 500, ativado: false}
+    {x: 400, ativado: false, spawnX:300, spawnY: 500},
+    {x: 500, ativado: false, spawnX:300, spawnY: 500},
+    {x: 600, ativado: false, spawnX:670, spawnY: 67}
 ]
+
+export const razaoDoCanva = 16/9;
+export const widthPadrao = 960;
+export const heightPadrao = 540;
 
 export const canvaEl = document.querySelector("canvas");
 
