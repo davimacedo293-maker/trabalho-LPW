@@ -1,5 +1,6 @@
 import { Personagem, Inimigo, Tileset } from './classes.js';
 import { canvaEl, context, mapaDoJogo, pontosDeSpawnInimigos, TileSize } from './constantes.js';
+import { camera, moverCamera } from './camera.js';
 
 const razaoDoCanva = 16/9;
 const widthPadrao = 960;
@@ -83,10 +84,10 @@ function verificaCriacaoInimigo() {
 function atualizarJogo() {
     context.clearRect(0, 0, canvaEl.width, canvaEl.height);
 
-    context.font = '24px "Comic Sans MS"';
-    context.fillStyle = "black";
-    context.fillText("Vidas: " + jogador.vida, 0, 30);
-    context.fillText("Pontos: " + jogador.pontos, 130, 30);
+    moverCamera(jogador, canvaEl);
+
+    context.save();
+    context.translate(-camera.x, -camera.y);
 
     if(jogador.noChao && jogador.knockback)
         jogador.knockback = false;
@@ -134,6 +135,13 @@ function atualizarJogo() {
     verificaCriacaoInimigo();
 
     jogador.desenhar();
+
+    context.restore();
+
+    context.font = '24px "Comic Sans MS"';
+    context.fillStyle = "black";
+    context.fillText("Vidas: " + jogador.vida, 0, 30);
+    context.fillText("Pontos: " + jogador.pontos, 130, 30);
 
     requestAnimationFrame(atualizarJogo);
 }

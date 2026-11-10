@@ -1,3 +1,4 @@
+import { camera } from './camera.js';
 import { BITMASK_PARA_SPRITE, TileSize, context, mapaDoJogo } from './constantes.js';
 
 export class Spritesheet{
@@ -28,12 +29,28 @@ export class Spritesheet{
         let srcX = this.offsetX + (this.colunaAtual * (this.frameWidth + this.spacing));
         let srcY = this.offsetY + (this.linhaAtual * (this.frameHeight + this.spacing));
 
-        context.drawImage(this.img,
-            srcX, srcY,
-            this.frameWidth, this.frameHeight,
-            this.posX, this.posY,
-            this.frameWidth, this.frameHeight
-        );
+        context.save();
+
+        if(this.direcaoOlhar == -1) {
+            context.scale(-1, 1);
+
+            context.drawImage(this.img,
+                srcX, srcY,
+                this.frameWidth, this.frameHeight,
+                -this.posX - this.frameWidth, this.posY,
+                this.frameWidth, this.frameHeight
+            );
+        }
+        else {
+            context.drawImage(this.img,
+                srcX, srcY,
+                this.frameWidth, this.frameHeight,
+                this.posX, this.posY,
+                this.frameWidth, this.frameHeight
+            );
+        }
+
+        context.restore();
     }
 }
 
@@ -309,7 +326,6 @@ export class Personagem extends Entidade{
             this.framesX = 4;
             this.colunaAtual = 0;
         }
-        this.direcaoOlhar = (this.vX < 0) ? -1 : 1;
     }
     atacar(listaInimigos) {
         const duracaoTotal = 12;
@@ -341,23 +357,25 @@ export class Personagem extends Entidade{
 
         let larguraDesenho = Math.abs(larguraPixelAtual);
         let ataqueX;
+        let hitboxX;
 
         context.fillStyle = "blue";
         context.lineWidth = 1;
 
         if (dir === 1) {
-            ataqueX = this.posX + this.frameWidth;
+            ataqueX = this.posX + this.frameWidth - (this.frameWidth - this.hitboxWidth) / 2;
+            hitboxX = ataqueX;
             context.fillRect(ataqueX, this.posY, larguraPixelAtual, this.frameHeight);
             context.strokeRect(ataqueX, this.posY, larguraPixelAtual, this.frameHeight);
         } else {
-            ataqueX = this.posX -  larguraDesenho;
+            hitboxX = this.posX + (this.frameWidth - this.hitboxWidth) / 2 - larguraDesenho;
+            ataqueX = this.posX;
             context.fillRect(ataqueX, this.posY, -larguraPixelAtual, this.frameHeight);
             context.strokeRect(ataqueX, this.posY, -larguraPixelAtual, this.frameHeight);
         }
 
-        let hitboxX = (dir === 1) ? (this.posX + this.frameWidth) : (this.posX - larguraPixelAtual);
         let ataqueHitbox = { 
-            x: ataqueX, 
+            x: hitboxX, 
             y: this.posY, 
             width: larguraDesenho, 
             height: this.frameHeight 
